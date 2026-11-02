@@ -24,6 +24,7 @@ The analyzer groups equivalent task/metric definitions, rejects duplicate steps 
 
 - **Recent declines:** last N checkpoints versus preceding N checkpoints (`--window 3` by default), ranked by the drop relative to the *reported per-evaluation* standard errors.
 - **Checkpoint volatility:** median and maximum absolute adjacent-checkpoint score changes per series.
+- **Matched controls:** flags large task-specific jumps when at least three other tasks with the same model, metric, and exact checkpoint pair change much less. Controls compare **deltas**, never raw task scores. This is evidence for an isolated anomaly, not a diagnosis.
 - **Machine-readable JSON** for external tools, CI workflows, dashboards, or agent integrations.
 
 All scoring is descriptive and checkpoint samples are correlated: **the reported noise ratio is not a statistical p-value or significance test**. The tool deliberately does not guess a root cause from aggregate scores.
@@ -35,7 +36,7 @@ The [OpenEuroLLM CoQA investigation (#163)](https://github.com/OpenEuroLLM/oellm
 ## Roadmap
 
 1. Dataset adapters and configuration-drift diagnostics.
-2. Automatic matched-task controls and a compact Markdown report.
+2. Compact Markdown reports with automatically selected stable reference tasks.
 3. Optional sample-level output comparison.
 4. Optional LLM explanations and MCP interface, with all underlying numeric evidence preserved.
 
