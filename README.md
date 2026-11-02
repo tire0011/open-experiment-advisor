@@ -2,7 +2,7 @@
 
 Open-source, **read-only** anomaly triage for LLM evaluation checkpoints. It uses deterministic statistics and requires **no LLM API, GPU, HPC credentials, or agent runtime**.
 
-> **Status:** experimental v0.2.0. Flags are hypotheses for human review, not verified model regressions or causal diagnoses.
+> **Status:** experimental v0.3.0. Flags are hypotheses for human review, not verified model regressions or causal diagnoses.
 
 ## Quick start
 
@@ -30,6 +30,16 @@ The analyzer groups equivalent task/metric definitions, rejects duplicate steps 
 - **Evidence-first Markdown investigation:** a shareable report with comparison table, explicit configuration-change flags, hypotheses clearly marked unverified, and suggested reproduction experiments.
 
 All scoring is descriptive and checkpoint samples are correlated: **the reported noise ratio is not a statistical p-value or significance test**. The tool deliberately does not guess a root cause from aggregate scores.
+
+### Compare actual model answers (optional)
+
+With two sample logs produced by EleutherAI `lm-eval --log_samples --output_path ...`:
+
+```powershell
+experiment-advisor-samples .\before.jsonl .\after.jsonl --metric f1 --output .\sample-diff.json
+```
+
+The comparator joins by `(doc_id, filter)` and requires matching `doc_hash`, `prompt_hash`, and `target_hash` before comparing responses and scores. It reports changed answers, sample-score decreases and increases, empty/multiline indicators, missing IDs, and hash mismatches. **No raw prompts, model answers or reference texts appear in the report.** This is important when analyzing private HPC runs. Neither sample logs nor model checkpoints are bundled in this repository.
 
 ### Why it exists
 
