@@ -61,3 +61,30 @@ def test_invalid_parameters(tmp_path):
         run_analysis(tmp_path, sample_rows([0.5] * 6), window=1)
     with pytest.raises(ValueError, match="minimum_change"):
         run_analysis(tmp_path, sample_rows([0.5] * 6), minimum_change=-1)
+
+
+def test_matched_controls_detect_task_specific_jump(tmp_path):
+    rows = sample_rows([0.8, 0.8, 0.8, 0.3, 0.3, 0.3])
+    for task in ("squad_gen", "drop_gen", "naturalqs_gen"):
+        rows.extend(sample_rows([0.6, 0.6, 0.6, 0.61, 0.61, 0.61], task=task))
+    report = run_analysis(tmp_path, rows)
+    coqa = [item for item in report["matched_control_divergences"]
+            if item["task"] == "coqa_gen"]
+    assert len(coqa) == 1
+    assert coqa[0]["change"] == -0.5
+    assert coqa[0]["matched_controls"] == 3
+    assert coqa[0]["control_median_change"] == 0.01
+
+
+def test_no_control_claim_when_all_tasks_fall(tmp_path):
+    rows = []
+    for task in ("coqa_gen", "squad_gen", "drop_gen", "naturalqs_gen"):
+        rows.extend(sample_rows([0.8, 0.8, 0.8, 0.3, 0.3, 0.3], task=task))
+    assert not run_analysis(tmp_path, rows)["matched_control_divergences"]
+
+
+def test_no_control_claim_with_only_two_controls(tmp_path):
+    rows = sample_rows([0.8, 0.8, 0.8, 0.3, 0.3, 0.3])
+    for task in ("squad_gen", "drop_gen"):
+        rows.extend(sample_rows([0.6] * 6, task=task))
+    assert not run_analysis(tmp_path, rows)["matched_control_divergences"]
