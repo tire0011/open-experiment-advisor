@@ -24,7 +24,8 @@ def investigation_markdown(
         "",
         "## Task-specific checkpoint changes",
         "",
-        "| Model / task / metric | Step transition | Score change | Control median | Controls | Config changes |",
+        "| Model / task / metric | Step transition | Score change | Control median "
+        "| Controls | Config changes |",
         "| --- | --- | ---: | ---: | ---: | --- |",
     ]
     for item in findings[:max_items]:
