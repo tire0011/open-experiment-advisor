@@ -2,7 +2,7 @@
 
 Open-source, **read-only** anomaly triage for LLM evaluation checkpoints. It uses deterministic statistics and requires **no LLM API, GPU, HPC credentials, or agent runtime**.
 
-> **Status:** experimental v0.1.0. Flags are hypotheses for human review, not verified model regressions or causal diagnoses.
+> **Status:** experimental v0.2.0. Flags are hypotheses for human review, not verified model regressions or causal diagnoses.
 
 ## Quick start
 
