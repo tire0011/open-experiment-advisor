@@ -13,6 +13,23 @@ SERIES_KEY = (
 REQUIRED = set(SERIES_KEY) | {"step", "score", "score_stderr", "higher_is_better", "n_samples"}
 
 
+def _canonical_config(value: object, *, evaluation: bool = False) -> str | None:
+    """Normalize serialized configs while excluding per-run metadata only."""
+    if value is None:
+        return None
+    if isinstance(value, float) and pd.isna(value):
+        return None
+    if isinstance(value, str):
+        try:
+            value = json.loads(value)
+        except (ValueError, TypeError):
+            return value
+    if evaluation and isinstance(value, dict):
+        value = {key: item for key, item in value.items()
+                 if key not in ("model_name", "total_eval_time_seconds")}
+    return json.dumps(value, sort_keys=True, default=str)
+
+
 def matched_controls(transitions: pd.DataFrame, *, minimum_change: float) -> list[dict]:
     """Find large task-specific changes with same-step, same-metric controls.
 
@@ -49,6 +66,8 @@ def matched_controls(transitions: pd.DataFrame, *, minimum_change: float) -> lis
                 "matched_controls": len(controls),
                 "control_median_change": round(median_change, 5),
                 "control_median_absolute_change": round(median_absolute, 5),
+                "task_config_changed": row.task_config_changed,
+                "eval_config_changed": row.eval_config_changed,
                 "interpretation": "task-specific divergence; cause unknown",
             })
     results.sort(
@@ -92,13 +111,24 @@ def analyze(path: str | Path, *, window: int = 3, minimum_change: float = 0.02) 
             for key, value in zip(SERIES_KEY, labels)
         }
         if len(group) >= 2:
-            records = group[["step", "score"]].to_records(index=False)
+            records = group.to_dict("records")
             for before_point, after_point in zip(records[:-1], records[1:]):
+                def config_change(field: str, *, evaluation: bool = False) -> bool | None:
+                    if field not in group:
+                        return None
+                    previous_config = _canonical_config(before_point[field], evaluation=evaluation)
+                    current_config = _canonical_config(after_point[field], evaluation=evaluation)
+                    if previous_config is None or current_config is None:
+                        return None
+                    return previous_config != current_config
+
                 transition_rows.append({
                     "model": identity["model"], "task": identity["task"],
                     "metric": identity["metric"],
-                    "from_step": before_point[0], "to_step": after_point[0],
-                    "change": float(after_point[1] - before_point[1]),
+                    "from_step": before_point["step"], "to_step": after_point["step"],
+                    "change": float(after_point["score"] - before_point["score"]),
+                    "task_config_changed": config_change("task_config"),
+                    "eval_config_changed": config_change("eval_config", evaluation=True),
                 })
         if len(group) >= 3:
             jumps = group["score"].diff().abs().dropna()
@@ -154,6 +184,7 @@ def analyze(path: str | Path, *, window: int = 3, minimum_change: float = 0.02) 
             "Reported score standard errors do not measure evaluation-run variability.",
             "Changed task configuration, model behavior, or sampling can explain a signal.",
             "Aggregate scores alone cannot establish root cause.",
+            "A stable configuration does not guarantee deterministic inference.",
             "Matched controls share metric names, but not necessarily task difficulty or variance.",
         ],
     }
