@@ -6,6 +6,7 @@ import argparse
 from pathlib import Path
 
 from .analysis import analyze, write_json
+from .report import write_markdown
 
 
 def main() -> None:
@@ -14,6 +15,8 @@ def main() -> None:
     parser.add_argument("--window", type=int, default=3)
     parser.add_argument("--minimum-change", type=float, default=0.02)
     parser.add_argument("--output", type=Path, help="Write full JSON report")
+    parser.add_argument("--markdown", type=Path, help="Write evidence-first Markdown investigation")
+    parser.add_argument("--focus-task", help="Restrict Markdown findings to this exact task name")
     args = parser.parse_args()
     try:
         report = analyze(args.scores, window=args.window, minimum_change=args.minimum_change)
@@ -21,6 +24,8 @@ def main() -> None:
         parser.error(str(exc))
     if args.output:
         write_json(report, args.output)
+    if args.markdown:
+        write_markdown(report, args.markdown, focus_task=args.focus_task)
     print(f"Comparable series: {report['series_tested']}; flagged: {len(report['candidates'])}")
     for item in report["candidates"][:10]:
         print(f"{item['model']} / {item['task']} / {item['metric']}: "
