@@ -10,7 +10,8 @@ Python 3.10+:
 
 ```powershell
 python -m pip install -e ".[dev]"
-experiment-advisor .\scores.parquet --output .\report.json
+experiment-advisor .\scores.parquet --output .\report.json --markdown .\investigation.md
+experiment-advisor .\scores.parquet --markdown .\coqa-investigation.md --focus-task coqa_gen
 python -m pytest -q
 ```
 
@@ -26,6 +27,7 @@ The analyzer groups equivalent task/metric definitions, rejects duplicate steps 
 - **Checkpoint volatility:** median and maximum absolute adjacent-checkpoint score changes per series.
 - **Matched controls:** flags large task-specific jumps when at least three other tasks with the same model, metric, and exact checkpoint pair change much less. Controls compare **deltas**, never raw task scores. This is evidence for an isolated anomaly, not a diagnosis.
 - **Machine-readable JSON** for external tools, CI workflows, dashboards, or agent integrations.
+- **Evidence-first Markdown investigation:** a shareable report with comparison table, explicit configuration-change flags, hypotheses clearly marked unverified, and suggested reproduction experiments.
 
 All scoring is descriptive and checkpoint samples are correlated: **the reported noise ratio is not a statistical p-value or significance test**. The tool deliberately does not guess a root cause from aggregate scores.
 
@@ -36,7 +38,7 @@ The [OpenEuroLLM CoQA investigation (#163)](https://github.com/OpenEuroLLM/oellm
 ## Roadmap
 
 1. Dataset adapters and configuration-drift diagnostics.
-2. Compact Markdown reports with automatically selected stable reference tasks.
+2. More targeted Markdown reports with automatically selected independent reference tasks.
 3. Optional sample-level output comparison.
 4. Optional LLM explanations and MCP interface, with all underlying numeric evidence preserved.
 
