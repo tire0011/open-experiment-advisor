@@ -2,6 +2,7 @@ import pandas as pd
 import pytest
 
 from experiment_advisor import analyze
+from experiment_advisor.report import investigation_markdown
 
 
 def sample_rows(scores, *, task="coqa_gen", samples=100):
@@ -88,3 +89,34 @@ def test_no_control_claim_with_only_two_controls(tmp_path):
     for task in ("squad_gen", "drop_gen"):
         rows.extend(sample_rows([0.6] * 6, task=task))
     assert not run_analysis(tmp_path, rows)["matched_control_divergences"]
+
+
+def test_config_drift_is_explicit_in_report(tmp_path):
+    rows = sample_rows([0.8, 0.8, 0.8, 0.3, 0.3, 0.3])
+    for task in ("squad_gen", "drop_gen", "naturalqs_gen"):
+        rows.extend(sample_rows([0.6] * 6, task=task))
+    for row in rows:
+        row["task_config"] = {"max_gen_toks": 50}
+        row["eval_config"] = {"model_name": f"checkpoint-{row['step']}",
+                              "total_eval_time_seconds": row["step"], "backend": "vllm"}
+    rows[3]["task_config"] = {"max_gen_toks": 80}
+    report = run_analysis(tmp_path, rows)
+    item = next(v for v in report["matched_control_divergences"] if v["task"] == "coqa_gen")
+    assert item["task_config_changed"] is True
+    assert item["eval_config_changed"] is False
+    markdown = investigation_markdown(report)
+    assert "task: yes, eval: no" in markdown
+    assert "unverified" in markdown
+    focused = investigation_markdown(report, focus_task="coqa_gen")
+    assert "Task filter: `coqa_gen`" in focused
+    assert "| test-model / coqa_gen / f1" in focused
+
+
+def test_config_unavailable_is_unknown(tmp_path):
+    rows = sample_rows([0.8, 0.8, 0.8, 0.3, 0.3, 0.3])
+    for task in ("squad_gen", "drop_gen", "naturalqs_gen"):
+        rows.extend(sample_rows([0.6] * 6, task=task))
+    report = run_analysis(tmp_path, rows)
+    item = next(v for v in report["matched_control_divergences"] if v["task"] == "coqa_gen")
+    assert item["task_config_changed"] is None
+    assert item["eval_config_changed"] is None
