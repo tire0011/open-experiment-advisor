@@ -35,6 +35,8 @@ All scoring is descriptive and checkpoint samples are correlated: **the reported
 
 The [OpenEuroLLM CoQA investigation (#163)](https://github.com/OpenEuroLLM/oellm-eval/issues/163) is the first motivating example: generative CoQA F1 changes dramatically across adjacent Prelude checkpoints while multiple-choice CoQA remains comparatively stable. The dataset alone cannot establish whether this is a model, prompt, backend, or evaluation problem.
 
+See the [generated CoQA investigation report](examples/coqa-investigation.md) for exact checkpoint comparisons, matched controls, recorded configuration checks, and a proposed validation experiment.
+
 ## Roadmap
 
 1. Dataset adapters and configuration-drift diagnostics.
