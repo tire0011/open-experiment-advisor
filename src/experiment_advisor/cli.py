@@ -30,6 +30,13 @@ def main() -> None:
     for item in report["volatility"][:5]:
         print(f"{item['model']} / {item['task']} / {item['metric']}: "
               f"median adjacent change {item['median_absolute_step_change']:.3f}")
+    print("Top matched-control divergences:")
+    for item in report["matched_control_divergences"][:5]:
+        print(f"{item['model']} / {item['task']} / {item['metric']} "
+              f"({item['from_step']} -> {item['to_step']}): "
+              f"change {item['change']:+.3f}; "
+              f"control median {item['control_median_change']:+.3f} "
+              f"(n={item['matched_controls']})")
 
 
 if __name__ == "__main__":
