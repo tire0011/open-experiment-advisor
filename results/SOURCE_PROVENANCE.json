@@ -1,0 +1,10 @@
+{
+  "dataset": "openeurollm/prelude-base-eval-scores",
+  "dataset_sha": "cf5f9d05ee6e2485273e7ebea7320645c7f6d778",
+  "last_modified": "2026-11-06T10:04:28.000Z",
+  "source_url": "https://huggingface.co/datasets/openeurollm/prelude-base-eval-scores/resolve/cf5f9d05ee6e2485273e7ebea7320645c7f6d778/scores.parquet",
+  "file": "scores.parquet",
+  "bytes": 880890,
+  "sha256": "d8d2f75aecd874ded2830dd02de7c8bcc4ace85243d846aa4952d132fa72bf5a",
+  "collected_at_utc": "2026-11-08T11:03:09.464409+00:00"
+}
