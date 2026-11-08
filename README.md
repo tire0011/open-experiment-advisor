@@ -31,6 +31,25 @@ The analyzer groups equivalent task/metric definitions, rejects duplicate steps 
 
 All scoring is descriptive and checkpoint samples are correlated: **the reported noise ratio is not a statistical p-value or significance test**. The tool deliberately does not guess a root cause from aggregate scores.
 
+### Automated public Prelude investigation
+
+The [Published Prelude investigation](.github/workflows/published-prelude.yml) runs
+weekly, on demand, and after a code change. GitHub Actions downloads the original
+public scores.parquet at an exact Hugging Face dataset commit, verifies the source
+revision and file SHA256, and runs this project's existing anomaly analyzer.
+No local PC, model inference, GPU, secret, or HPC access is needed.
+
+The workflow commits:
+
+- [results/COQA_INVESTIGATION.md](results/COQA_INVESTIGATION.md): current CoQA
+  findings, checkpoint-matched same-metric controls and falsifiable hypotheses.
+- [results/latest.json](results/latest.json): complete machine-readable analyzer output.
+- [results/SOURCE_PROVENANCE.json](results/SOURCE_PROVENANCE.json): fixed dataset
+  revision, source URL, file hash, file size and collection time.
+
+If the public source fails, the job fails and retains the last successful
+committed report rather than publishing invented or partial numbers.
+
 ### Compare actual model answers (optional)
 
 With two sample logs produced by EleutherAI `lm-eval --log_samples --output_path ...`:
