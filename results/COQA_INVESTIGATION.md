@@ -1,6 +1,6 @@
 # Evaluation investigation report
 
-Source: [published scores.parquet](https://huggingface.co/datasets/openeurollm/prelude-base-eval-scores/resolve/cf5f9d05ee6e2485273e7ebea7320645c7f6d778/scores.parquet) (dataset commit cf5f9d05ee6e2485273e7ebea7320645c7f6d778, file SHA256 d8d2f75aecd874ded2830dd02de7c8bcc4ace85243d846aa4952d132fa72bf5a)  
+Source: [published scores.parquet](https://huggingface.co/datasets/openeurollm/prelude-base-eval-scores/resolve/88f335f943f34bbf1fbba681719b2750f02340f7/scores.parquet) (dataset commit 88f335f943f34bbf1fbba681719b2750f02340f7, file SHA256 d8d2f75aecd874ded2830dd02de7c8bcc4ace85243d846aa4952d132fa72bf5a)  
 Comparable series: 1776  
 Recent-decline candidates: 29  
 Matched-control divergences (top 100): 10
